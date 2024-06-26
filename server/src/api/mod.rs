@@ -4,10 +4,12 @@ mod routes;
 
 use crate::{config::Config, jwt};
 use anyhow::Result;
+use database::Database;
 use openid::DiscoveredClient;
 use routes::auth;
+use std::sync::Arc;
 
-pub async fn run(cfg: Config) -> Result<()> {
+pub async fn run(cfg: Config, database: Arc<Database>) -> Result<()> {
     let oidc_client = DiscoveredClient::discover(
         cfg.oidc.id,
         Some(cfg.oidc.secret),
@@ -21,6 +23,7 @@ pub async fn run(cfg: Config) -> Result<()> {
     rocket::build()
         .manage(oidc_client)
         .manage(jwt_handler)
+        .manage(database)
         .mount("/api/auth", auth::routes())
         .launch()
         .await?;

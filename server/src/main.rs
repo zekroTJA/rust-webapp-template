@@ -2,7 +2,10 @@ mod api;
 mod config;
 mod jwt;
 
+use std::sync::Arc;
+
 use anyhow::Result;
+use database::Database;
 use env_logger::Env;
 
 #[rocket::main]
@@ -12,5 +15,7 @@ async fn main() -> Result<()> {
 
     let cfg = config::Config::load()?;
 
-    api::run(cfg).await
+    let database = Arc::new(Database::new(&cfg.database.dsn).await?);
+
+    api::run(cfg, database).await
 }

@@ -6,6 +6,7 @@ use url::Url;
 #[derive(Deserialize, Debug)]
 pub struct Config {
     pub oidc: Oidc,
+    pub database: Database,
 }
 
 #[derive(Deserialize, Debug)]
@@ -14,6 +15,11 @@ pub struct Oidc {
     pub secret: String,
     pub redirect: String,
     pub issuer: Url,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Database {
+    pub dsn: String,
 }
 
 impl Config {
