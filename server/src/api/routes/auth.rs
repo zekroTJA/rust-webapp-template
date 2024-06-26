@@ -1,4 +1,10 @@
-use crate::api::{error::Error, responders::Cookies};
+use crate::{
+    api::{
+        error::Error,
+        responders::{Cookies, Either},
+    },
+    jwt,
+};
 use openid::{Client, Token};
 use rocket::{
     get,
@@ -8,15 +14,38 @@ use rocket::{
     time::{Duration, OffsetDateTime},
     Route, State,
 };
+use serde::{Deserialize, Serialize};
 
-#[get("/login")]
-async fn login(client: &State<Client>) -> Redirect {
-    let uri = client.auth_uri(Some("openid profile"), None);
-    Redirect::temporary(uri.to_string())
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Claims {
+    exp: usize,
+    redirect: Option<String>,
 }
 
-#[get("/callback?<code>")]
-async fn callback(client: &State<Client>, code: String) -> Result<Cookies<Status>, Error> {
+#[get("/login?<redirect>")]
+async fn login(
+    client: &State<Client>,
+    jwt_handler: &State<jwt::Handler>,
+    redirect: Option<String>,
+) -> Result<Redirect, Error> {
+    let claims = Claims {
+        exp: jwt::expire_in(Duration::minutes(5)),
+        redirect,
+    };
+    let token = jwt_handler.encode(claims)?;
+    let uri = client.auth_uri(Some("openid profile"), Some(token.as_ref()));
+    Ok(Redirect::temporary(uri.to_string()))
+}
+
+#[get("/callback?<code>&<state>")]
+async fn callback<'r>(
+    client: &State<Client>,
+    jwt_handler: &State<jwt::Handler>,
+    code: String,
+    state: String,
+) -> Result<Cookies<Either<Redirect, Status>>, Error> {
+    let claims: Claims = jwt_handler.decode(&state, &["exp"])?;
+
     let mut token: Token = client.request_token(&code).await?.into();
 
     let Some(id_token) = token.id_token.as_mut() else {
@@ -36,8 +65,13 @@ async fn callback(client: &State<Client>, code: String) -> Result<Cookies<Status
         .http_only(true)
         .build();
 
+    let inner = match claims.redirect {
+        Some(redirect) => Either::A(Redirect::temporary(redirect)),
+        None => Either::B(Status::NoContent),
+    };
+
     Ok(Cookies {
-        inner: Status::NoContent,
+        inner,
         cookies: vec![id_cookie],
     })
 }

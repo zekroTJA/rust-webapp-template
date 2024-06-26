@@ -1,5 +1,6 @@
 mod api;
 mod config;
+mod jwt;
 
 use anyhow::Result;
 use env_logger::Env;
