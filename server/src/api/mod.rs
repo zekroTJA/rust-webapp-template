@@ -1,4 +1,5 @@
 mod error;
+mod guards;
 mod responders;
 mod routes;
 

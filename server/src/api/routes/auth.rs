@@ -1,6 +1,9 @@
+use std::ops::Deref;
+
 use crate::{
     api::{
         error::Error,
+        guards::Auth,
         responders::{Cookies, Either},
     },
     jwt,
@@ -11,6 +14,7 @@ use rocket::{
     http::{Cookie, Status},
     response::Redirect,
     routes,
+    serde::json::Json,
     time::{Duration, OffsetDateTime},
     Route, State,
 };
@@ -76,6 +80,11 @@ async fn callback<'r>(
     })
 }
 
+#[get("/check")]
+async fn check(id: Auth) -> Result<Json<<Auth as Deref>::Target>, Error> {
+    Ok(Json(id.deref().clone()))
+}
+
 pub fn routes() -> Vec<Route> {
-    routes![login, callback]
+    routes![login, callback, check]
 }
