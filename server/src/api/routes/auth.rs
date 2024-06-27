@@ -1,4 +1,4 @@
-use std::ops::Deref;
+use std::{ops::Deref, sync::Arc};
 
 use crate::{
     api::{
@@ -8,6 +8,8 @@ use crate::{
     },
     jwt,
 };
+use database::{models::User, Database};
+use log::{debug, info};
 use openid::{Client, Token};
 use rocket::{
     get,
@@ -45,6 +47,7 @@ async fn login(
 async fn callback<'r>(
     client: &State<Client>,
     jwt_handler: &State<jwt::Handler>,
+    database: &State<Arc<Database>>,
     code: String,
     state: String,
 ) -> Result<Cookies<Either<Redirect, Status>>, Error> {
@@ -63,6 +66,13 @@ async fn callback<'r>(
 
     client.decode_token(id_token)?;
     client.validate_token(id_token, None, None)?;
+
+    let payload = id_token.payload()?;
+    let user = database.user(&payload.sub).await?;
+    if user.is_none() {
+        info!("Registered new user with id={}", payload.sub);
+        database.add_user(&User::new(&payload.sub)).await?;
+    }
 
     let id_cookie = Cookie::build(("id_token", id_token_b64))
         .expires(OffsetDateTime::now_utc() + Duration::weeks(4))

@@ -15,3 +15,4 @@ rand = "0.8.5"
 rocket = { version = "0.5.1", features = ["json"] }
 serde = "1.0.203"
 url = "2.5.2"
+chrono = { version = "0.4.38", features = ["serde"] }

@@ -50,5 +50,5 @@ fn decode_and_validate_token(
     let mut id_token = jws::Compact::<StandardClaims, Empty>::Encoded(Compact::decode(token));
     client.decode_token(&mut id_token)?;
     client.validate_token(&id_token, None, None)?;
-    Ok(id_token.payload()?.clone())
+    Ok(dbg!(id_token.payload()?).clone())
 }
