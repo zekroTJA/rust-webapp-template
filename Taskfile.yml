@@ -3,10 +3,31 @@
 version: "3"
 
 tasks:
-  run:
+  run-server:
+    aliases:
+      - run
     desc: Run the backend
     cmds:
       - cargo run -p server
+
+  run-webapp:
+    aliases:
+      - run-web
+      - web
+    desc: Run the web app
+    deps:
+      - deps-webapp
+    dir: webapp
+    cmds:
+      - bun run dev
+
+  deps-webapp:
+    dir: webapp
+    sources:
+      - ./package.json
+      - ./bun.lockb
+    cmds:
+      - bun install
 
   dc-dev:
     aliases:
