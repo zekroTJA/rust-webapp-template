@@ -1,0 +1,6 @@
+services:
+  postgres:
+    image: postgres:alpine
+    restart: on-failure
+    ports:
+      - 5432:5432
