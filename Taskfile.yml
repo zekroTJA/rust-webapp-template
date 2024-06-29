@@ -21,6 +21,25 @@ tasks:
     cmds:
       - bun run dev
 
+  build:
+    desc: Build the server and webapp in release mode
+    cmds:
+      - task: build-webapp
+      - task: build-server
+
+  build-server:
+    desc: Build the server in release mode
+    cmds:
+      - cargo build -p server --release
+
+  build-webapp:
+    desc: Build the web app in release mode
+    deps:
+      - deps-webapp
+    dir: webapp
+    cmds:
+      - bun run build
+
   deps-webapp:
     dir: webapp
     sources:

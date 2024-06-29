@@ -6,6 +6,10 @@ const router = createBrowserRouter([
     path: "/",
     element: <p>Hello world!</p>,
   },
+  {
+    path: "/foo",
+    element: <p>Hello foo!</p>,
+  },
 ]);
 
 const App: React.FC = () => {

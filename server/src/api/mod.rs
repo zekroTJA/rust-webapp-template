@@ -7,7 +7,7 @@ use crate::{config::Config, jwt};
 use anyhow::Result;
 use database::Database;
 use openid::DiscoveredClient;
-use routes::auth;
+use routes::{auth, spa};
 use std::sync::Arc;
 
 pub async fn run(cfg: Config, database: Arc<Database>) -> Result<()> {
@@ -26,6 +26,7 @@ pub async fn run(cfg: Config, database: Arc<Database>) -> Result<()> {
         .manage(jwt_handler)
         .manage(database)
         .mount("/api/auth", auth::routes())
+        .mount("/", spa::routes())
         .launch()
         .await?;
 
