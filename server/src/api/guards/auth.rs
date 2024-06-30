@@ -12,25 +12,21 @@ pub struct Auth(StandardClaims);
 
 #[async_trait]
 impl<'r> FromRequest<'r> for Auth {
-    type Error = anyhow::Error;
+    type Error = &'r str;
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let Some(id_token) = request.cookies().get("id_token") else {
-            return Outcome::Forward(Status::Unauthorized);
+            return Outcome::Error((Status::Unauthorized, "no ID token contained in request"));
         };
 
-        let client =
-            try_outcome!(request
-                .guard::<&State<Client>>()
-                .await
-                .map_error(|(status, ())| (
-                    status,
-                    anyhow::anyhow!("failed extracting OIDC client from request")
-                )));
+        let client = try_outcome!(request
+            .guard::<&State<Client>>()
+            .await
+            .map_error(|(status, ())| (status, "failed extracting OIDC client from request")));
 
         match decode_and_validate_token(client, id_token.value()) {
             Ok(claims) => Outcome::Success(Self(claims)),
-            Err(_) => Outcome::Forward(Status::Unauthorized),
+            Err(_) => Outcome::Error((Status::Unauthorized, "invalid ID token")),
         }
     }
 }
