@@ -9,7 +9,7 @@ use crate::{
     jwt,
 };
 use database::{models::User, Database};
-use log::{debug, info};
+use log::info;
 use openid::{Client, Token};
 use rocket::{
     get,
