@@ -33,6 +33,8 @@ tasks:
       - cargo build -p server --release
 
   build-webapp:
+    aliases:
+      - build-web
     desc: Build the web app in release mode
     deps:
       - deps-webapp
