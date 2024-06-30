@@ -73,12 +73,12 @@ export class APIService extends HttpClient {
   }
 
   redirectLogin(redirect: string) {
-    window.location.assign(
-      `${this.rootUrl}/api/auth/login?redirect=${redirect}`
-    );
+    window.location.assign(`${this.rootUrl}/auth/login?redirect=${redirect}`);
   }
 
   authCheck(): Promise<AuthCheck> {
     return this.req("GET", "auth/check");
   }
 }
+
+export const APIServiceInstance = new APIService();

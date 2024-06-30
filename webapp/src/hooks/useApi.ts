@@ -1,9 +1,9 @@
-import { APIError, APIService } from "../services/api";
+import { APIError, APIService, APIServiceInstance } from "../services/api";
 
 import { useNavigate } from "react-router";
 import { useStore } from "../services/store";
 
-const apiServiceInstance = new APIService();
+const apiServiceInstance = APIServiceInstance;
 
 const useApi = () => {
   const setLoggedIn = useStore((s) => s.setLoggedIn);
