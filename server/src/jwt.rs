@@ -1,10 +1,9 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-
 use anyhow::Result;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use rocket::time::Duration;
 use serde::{de::DeserializeOwned, Serialize};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct Handler {
     encoding_key: EncodingKey,
