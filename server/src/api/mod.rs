@@ -27,7 +27,6 @@ pub async fn run(cfg: Config, database: Arc<Database>) -> Result<()> {
         .manage(oidc_client)
         .manage(jwt_handler)
         .manage(database)
-        .mount("/", spa::routes())
         .mount("/api/auth", auth::routes())
         .mount("/", spa::routes())
         .register("/api", catchers![default_catcher])
